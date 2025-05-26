@@ -1,114 +1,34 @@
+// Date.cpp
+#include "Date.h"
 #include <iostream>
-#include <string>
+
 using namespace std;
 
-enum Months {
-    JANUARY = 1, FEBRUARY, MARCH, APRIL, MAY, JUNE, JULY, AUGHUST, SEPTEMBER, OCTOBER ,  NOVEMBER, DECEMBER
-};
+// Helper function to calculate days in a month (simplified)
 
-enum Mode {
-    DDDYYYY , MMDDYY , TEXT 
-};
-
-class Date {
-private:
-    int day;
-    int month;
-    int year;
-    static const int MONTHS_PER_YEAR = 12;
-    static const int DAYS_PER_MONTH = 30;
-    Mode mode;
-    static Months daytomonth(Date);
-public:
-    Date(int, int);
-    Date(int, int, int);
-    Date(Months, int, int);
-    Date();
-    ~Date();
-
-    void setDay(int);
-    void setMonth(int);
-    void setMonth(Months);
-    void setYear(int);
-    int getYear() const;
-    int getDay() const;
-    int getMonth() const;
-    void setMode(Mode);
-    int getMode() const;
-    void print() const;
-    void print0() const;
-    void print1() const;
-    void print2() const;
-};
-
-int Date::getYear() const {
-    return year;
-}
-
-int Date::getDay() const {
-    return day;
-}
-
-int Date::getMonth() const {
-    return month;
-}
-
-void Date::setDay(int day) {
-    this->day = day;
-}
-
-void Date::setMonth(int month) {
-    this->month = month;
-}
-
-void Date::setMonth(Months month) {
-    this->month = month;
-}
-
-
-void Date::setYear(int year) {
-    this->year = year;
-}
-
-Date::Date(Months month, int day, int year) {
-    this->month = month;
-    if (day >= 1 && day < 30)
-        this->day = day;
-    this->year = year;
-    mode = TEXT;
-}
-
-Date::Date(int month, int day, int year) {
-    if (day >= 1 && day <= 30)
-        this->day = day;
-    if (month >= 1 && month <= MONTHS_PER_YEAR)
-        this->month = month;
-    this->year = year;
-    mode = MMDDYY;
-}
-Date::~Date() {
-
-}
-
-void Date::print() const {
-    switch (mode) {
-    case DDDYYYY: print0(); break;
-    case MMDDYY: print1(); break;
-    case TEXT: print2(); break;
+    int daysInMonth(int month, int year) {
+        if (month == 2) return 28; // No leap year support
+        if (month == 4 || month == 6 || month == 9 || month == 11) return 30;
+        return 31;
     }
+
+
+// Static member function
+Months Date::dayToMonth(Date d) {
+    return static_cast<Months>(d.month);
 }
 
-
-void Date::print0() const {
-    cout << day + ((month - 1) * 30) << " " << year;
+// Constructors
+Date::Date(Months m, int d, int y) : year(y), mode(TEXT) {
+    month = m;
+    int maxDays = daysInMonth(m, y);
+    day = (d >= 1 && d <= maxDays) ? d : 1;
 }
 
-void Date::print1() const {
-    std::cout << month << "/" << day << "/" << year % 100;
-}
-
-void Date::print2() const {
-    std::cout << static_cast<Months>(month) << " " << day << ", " << year;
+Date::Date(int m, int d, int y) : year(y), mode(MMDDYY) {
+    month = (m >= 1 && m <= MONTHS_PER_YEAR) ? m : 1;
+    int maxDays = daysInMonth(month, y);
+    day = (d >= 1 && d <= maxDays) ? d : 1;
 }
 
 Date::Date(int dayOfYear, int y) : year(y), mode(DDDYYYY) {
@@ -122,23 +42,43 @@ Date::Date(int dayOfYear, int y) : year(y), mode(DDDYYYY) {
     day = dayOfYear;
 }
 
-Date::Date() {
-    year = 1970;
-    day = 1;
-    month = 1;
+Date::Date() : day(1), month(1), year(1970), mode(MMDDYY) {}
+
+// Destructor
+Date::~Date() {}
+
+// Setters
+void Date::setDay(int d) { day = d; }
+void Date::setMonth(int m) { month = m; }
+void Date::setMonth(Months m) { month = m; }
+void Date::setYear(int y) { year = y; }
+
+// Getters
+int Date::getYear() const { return year; }
+int Date::getDay() const { return day; }
+int Date::getMonth() const { return month; }
+
+// Mode control
+void Date::setMode(Mode m) { mode = m; }
+int Date::getMode() const { return mode; }
+
+// Print functions
+void Date::print() const {
+    switch (mode) {
+    case DDDYYYY: print0(); break;
+    case MMDDYY: print1(); break;
+    case TEXT: print2(); break;
+    }
 }
 
-int main() {
-    Date d1(JANUARY, 15, 2023);
-    Date birthday(DECEMBER, 21, 2005);
-    d1.print(); // Output: 1/15/23 (if mode is MMDDYY)
-    cout << '\n';
-    d1.print0();
-    cout << endl;
-    d1.print2();
-    cout << endl;
-    d1.print();
-    cout << endl;
-    birthday.print0();
-    return 0;
+void Date::print0() const {
+    cout << day << "-" << month << "-" << year;
+}
+
+void Date::print1() const {
+    cout << month << "/" << day << "/" << year % 100;
+}
+
+void Date::print2() const {
+    cout << static_cast<Months>(month) << " " << day << ", " << year;
 }
